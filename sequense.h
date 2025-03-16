@@ -64,8 +64,10 @@ public:
     Sequence<T>* Concat(const Sequence<T>& array1, const Sequence<T>& array2) override;
     void Set(size_t index, const T& value);
     void ReSize(size_t new_size);
-    static Sequence<T>* Where(const DynamicArray<T>& array, bool (*predicate)(T&));
-    static Sequence<T>* Map(const DynamicArray<T>& array, void (*unary)(T&));
+    template <class Predicate>
+    Sequence<T>* Where(const Predicate& predicate) const;
+    template <class Unary>
+    Sequence<T>* Map(const Unary& unary);
 };
 
 template <typename T>
@@ -224,21 +226,24 @@ void DynamicArray<T>::ReSize(size_t new_size) {
 }
 
 template <typename T>
-Sequence<T>* DynamicArray<T>:: Where(const DynamicArray& array, bool (*predicate)(T&)){
+template <class Predicate>
+Sequence<T>* DynamicArray<T>::Where(const Predicate& predicate) const{
     DynamicArray<T>* copy_array = new DynamicArray<T>;
-    for(size_t i = 0; i < array.Sequence<T>::lenght_; ++i){
-        if(predicate(array.data_[i])){
-            copy_array->Append(array.data_[i]);
+    for(size_t i = 0; i < Sequence<T>::lenght_; ++i){
+        if(predicate(data_[i])){
+            copy_array->Append(data_[i]);
         }
     }
     return copy_array;
 }
 
 template<typename T>
-Sequence<T>* DynamicArray<T>::Map(const DynamicArray& array, void (*unary)(T&)){
-    DynamicArray<T>* copy_array = new DynamicArray<T>(array.Sequence<T>::lenght_);
-    for(size_t i = 0; i < array.Sequence<T>::lenght_; ++i){
-        unary(array.data_[i]);
+template<class Unary>
+Sequence<T>* DynamicArray<T>::Map(const Unary& unary){
+    DynamicArray<T>* copy_array = new DynamicArray<T>(Sequence<T>::lenght_);
+    for(size_t i = 0; i < Sequence<T>::lenght_; ++i){
+        unary(data_[i]);
+        copy_array->Append(data_[i]);
     }
     return copy_array;
 }
@@ -284,8 +289,11 @@ public:
     Sequence<T>* Prepend(const T& item) override;
     LinkedList<T>* Concat(const Sequence<T>& list1, const Sequence<T>& list2) override;
     void InsertAt(const T& item, size_t index);
-    static Sequence<T>* Where(const LinkedList<T>& list, bool (*predicate)(T&));
-    static Sequence<T>* Map(const LinkedList<T>& list, void (*unary)(T&));
+    template <class Predicate>
+    Sequence<T>* Where(const Predicate& predicate) const;
+    template <class Unary>
+    Sequence<T>* Map(const Unary& unary);
+    
 };
 
 template <typename T>
@@ -520,9 +528,10 @@ void LinkedList<T>::InsertAt(const T& item, size_t index){
 }
 
 template <typename T>
-Sequence<T>* LinkedList<T> :: Where(const LinkedList& list, bool (*predicate)(T&)){
+template <class Predicate>
+Sequence<T>* LinkedList<T>::Where(const Predicate& predicate) const{
     Sequence<T>* copy_list = new LinkedList<T>;
-    Node_* current_node = list.head_;
+    Node_* current_node = head_;
     while(current_node != nullptr){
         if(predicate(current_node->data)){
             copy_list->Append(current_node->data);
@@ -533,9 +542,10 @@ Sequence<T>* LinkedList<T> :: Where(const LinkedList& list, bool (*predicate)(T&
 }
 
 template <typename T>
-Sequence<T>* LinkedList<T> :: Map(const LinkedList& list,  void (*unary)(T&)){
+template <class Unary>
+Sequence<T>* LinkedList<T>::Map(const Unary& unary){
     Sequence<T>* copy_list = new LinkedList<T>;
-    Node_* current_node = list.head_;
+    Node_* current_node = head_;
     while(current_node != nullptr){
         unary(current_node->data);
         copy_list->Append(current_node->data);
@@ -543,4 +553,3 @@ Sequence<T>* LinkedList<T> :: Map(const LinkedList& list,  void (*unary)(T&)){
     }
     return copy_list;
 }
-
