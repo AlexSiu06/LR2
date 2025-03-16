@@ -73,6 +73,40 @@ void testDynamicArrayReSize() {
     assert(arr.GetLenght() == 3);
 }
 
+bool predicate(int& value) {
+    return (value > 25);
+}
+
+void testDynamicArrayWhere() {
+    DynamicArray<int> arr;
+    arr.Append(10);
+    arr.Append(20);
+    arr.Append(30);
+    arr.Append(40);
+    DynamicArray<int>* select_arr = static_cast<DynamicArray<int>*>(DynamicArray<int>::Where(arr, predicate));
+    assert(select_arr->GetLenght() == 2);
+    assert(select_arr->Get(0) == 30);
+    assert(select_arr->Get(1) == 40);
+    delete select_arr;
+}
+
+void unary(int& value) {
+    value += 1;
+}
+
+void testDynamicArrayMap() {
+    DynamicArray<int> arr;
+    arr.Append(10);
+    arr.Append(20);
+    arr.Append(30);
+    DynamicArray<int>* mapped = static_cast<DynamicArray<int>*>(DynamicArray<int>::Map(arr, unary));
+    assert(mapped->GetLenght() == 3);
+    assert(mapped->Get(0) == 11);
+    assert(mapped->Get(1) == 21);
+    assert(mapped->Get(2) == 31);
+    delete mapped;
+}
+
 void testLinkedListDefaultConstructor() {
     LinkedList<int> list;
     assert(list.GetLenght() == 0);
@@ -141,3 +175,33 @@ void testLinkedListInsertAt() {
     assert(list.GetLenght() == 5);
     assert(list.Get(4) == 40);
 }
+
+void testLinkedListWhere() {
+    LinkedList<int> list;
+    list.Append(10);
+    list.Append(20);
+    list.Append(30);
+    list.Append(40);
+    LinkedList<int>* select_list = static_cast<LinkedList<int>*>(LinkedList<int>::Where(list, predicate));
+    assert(select_list->GetLenght() == 2);
+    assert(select_list->Get(0) == 30);
+    assert(select_list->Get(1) == 40);
+    delete select_list;
+}
+
+void testLinkedListMap() {
+    LinkedList<int> list;
+    list.Append(10);
+    list.Append(20);
+    list.Append(30);
+    list.Append(40);
+    LinkedList<int>* mapped = static_cast<LinkedList<int>*>(LinkedList<int>::Map(list, unary));
+    assert(mapped->GetLenght() == 4);
+    assert(mapped->Get(0) == 11);
+    assert(mapped->Get(1) == 21);
+    assert(mapped->Get(2) == 31);
+    assert(mapped->Get(3) == 41);
+    delete mapped;
+}
+
+
