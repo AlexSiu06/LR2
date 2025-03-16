@@ -5,7 +5,7 @@ template <typename T>
 class Sequence {
 protected:
     size_t lenght_;
-public:2
+public:
     Sequence();
     Sequence(size_t lenght);
     virtual ~Sequence() = default;
@@ -59,8 +59,8 @@ public:
     const T& GetFirst() const override;
     size_t GetLenght() const override;
     Sequence<T>* GetSubsequence(size_t start_index, size_t end_index) override;
-    void Append(const T& item) override;
-    void Prepend(const T& item) override;
+    Sequence<T>* Append(const T& item) override;
+    Sequence<T>* Prepend(const T& item) override;
     Sequence<T>* Concat(const Sequence<T>& list1, const Sequence<T>& list2) override;
     void Set(size_t index, const T& value);
     void ReSize(size_t new_size);
@@ -73,8 +73,7 @@ template <typename T>
 DynamicArray<T>::DynamicArray(size_t lenght) : ArraySequence<T>(lenght), data_(new T[lenght]), capacity_(lenght) {}
 
 template <typename T>
-DynamicArray<T>::DynamicArray(const DynamicArray<T>& other) : ArraySequence<T>(other.lenght_), data_(new T[other.lenght_]), capacity_(other.capacity_) {
-    for (size_t i = 0; i < lenght_; ++i) {
+DynamicArray<T>::DynamicArray(const DynamicArray<T>& other) : ArraySequence<T>(other.Sequence<T>::lenght_), data_(new T[other.Sequence<T>::lenght_]), capacity_(other.capacity_) { for (size_t i = 0; i < Sequence<T>::lenght_; ++i) {
         data_[i] = other.data_[i];
     }
 }
@@ -86,7 +85,7 @@ DynamicArray<T>::~DynamicArray() {
 
 template <typename T>
 T& DynamicArray<T>::Get(size_t index) {
-    if (index >= lenght_) {
+    if (index >= Sequence<T>::lenght_) {
         throw std::out_of_range("Index out of range");
     }
     return data_[index];
@@ -94,15 +93,15 @@ T& DynamicArray<T>::Get(size_t index) {
 
 template <typename T>
 T& DynamicArray<T>::GetLast() {
-    if (lenght_ == 0) {
+    if (Sequence<T>::lenght_ == 0) {
         throw std::out_of_range("List is empty");
     }
-    return data_[lenght_ - 1];
+    return data_[Sequence<T>::lenght_ - 1];
 }
 
 template <typename T>
 T& DynamicArray<T>::GetFirst() {
-    if (lenght_ == 0) {
+    if (Sequence<T>::lenght_ == 0) {
         throw std::out_of_range("List is empty");
     }
     return data_[0];
@@ -110,7 +109,7 @@ T& DynamicArray<T>::GetFirst() {
 
 template <typename T>
 const T& DynamicArray<T>::Get(size_t index) const {
-    if (index >= lenght_) {
+    if (index >= Sequence<T>::lenght_) {
         throw std::out_of_range("Index out of range");
     }
     return data_[index];
@@ -118,15 +117,15 @@ const T& DynamicArray<T>::Get(size_t index) const {
 
 template <typename T>
 const T& DynamicArray<T>::GetLast() const {
-    if (lenght_ == 0) {
+    if (Sequence<T>::lenght_ == 0) {
         throw std::out_of_range("List is empty");
     }
-    return data_[lenght_ - 1];
+    return data_[Sequence<T>::lenght_ - 1];
 }
 
 template <typename T>
 const T& DynamicArray<T>::GetFirst() const {
-    if (lenght_ == 0) {
+    if (Sequence<T>::lenght_ == 0) {
         throw std::out_of_range("List is empty");
     }
     return data_[0];
@@ -134,12 +133,12 @@ const T& DynamicArray<T>::GetFirst() const {
 
 template <typename T>
 size_t DynamicArray<T>::GetLenght() const {
-    return lenght_;
+    return Sequence<T>::lenght_;
 }
 
 template <typename T>
 Sequence<T>* DynamicArray<T>::GetSubsequence(size_t start_index, size_t end_index) {
-    if (start_index >= lenght_ || end_index > lenght_ || start_index > end_index) {
+    if (start_index >= Sequence<T>::lenght_ || end_index > Sequence<T>::lenght_ || start_index > end_index) {
         throw std::out_of_range("Invalid start or end index");
     }
     DynamicArray<T>* subsequence = new DynamicArray<T>(end_index - start_index);
@@ -150,37 +149,39 @@ Sequence<T>* DynamicArray<T>::GetSubsequence(size_t start_index, size_t end_inde
 }
 
 template <typename T>
-void DynamicArray<T>::Append(const T& item) {
-    if (lenght_ == capacity_) {
+Sequence<T>* DynamicArray<T>::Append(const T& item) {
+    if (Sequence<T>::lenght_ == capacity_) {
         capacity_ = (capacity_ == 0) ? 1 : capacity_ * 2;
         T* new_data = new T[capacity_];
-        for (size_t i = 0; i < lenght_; ++i) {
+        for (size_t i = 0; i < Sequence<T>::lenght_; ++i) {
             new_data[i] = data_[i];
         }
         delete[] data_;
         data_ = new_data;
     }
-    data_[lenght_] = item;
-    ++lenght_;
+    data_[Sequence<T>::lenght_] = item;
+    ++Sequence<T>::lenght_;
+    return this;
 }
 
 template <typename T>
-void DynamicArray<T>::Prepend(const T& item) {
-    if (lenght_ == capacity_) {
+Sequence<T>* DynamicArray<T>::Prepend(const T& item) {
+    if (Sequence<T>::lenght_ == capacity_) {
         capacity_ = (capacity_ == 0) ? 1 : capacity_ * 2;
         T* new_data = new T[capacity_];
-        for (size_t i = 0; i < lenght_; ++i) {
+        for (size_t i = 0; i < Sequence<T>::lenght_; ++i) {
             new_data[i + 1] = data_[i];
         }
         delete[] data_;
         data_ = new_data;
     } else {
-        for (size_t i = lenght_; i > 0; --i) {
+        for (size_t i = Sequence<T>::lenght_; i > 0; --i) {
             data_[i] = data_[i - 1];
         }
     }
     data_[0] = item;
-    ++lenght_;
+    ++Sequence<T>::lenght_;
+    return this;
 }
 
 template <typename T>
@@ -200,7 +201,7 @@ Sequence<T>* DynamicArray<T>::Concat(const Sequence<T>& list1, const Sequence<T>
 
 template <typename T>
 void DynamicArray<T>::Set(size_t index, const T& value) {
-    if (index >= lenght_) {
+    if (index >= Sequence<T>::lenght_) {
         throw std::out_of_range("Index out of range");
     }
     data_[index] = value;
@@ -211,13 +212,13 @@ void DynamicArray<T>::ReSize(size_t new_size) {
     if (new_size > capacity_) {
         capacity_ = new_size;
         T* new_data = new T[capacity_];
-        for (size_t i = 0; i < lenght_; ++i) {
+        for (size_t i = 0; i < Sequence<T>::lenght_; ++i) {
             new_data[i] = data_[i];
         }
         delete[] data_;
         data_ = new_data;
     }
-    lenght_ = new_size;
+    Sequence<T>::lenght_ = new_size;
 }
 
 template <typename T>
@@ -228,16 +229,16 @@ public:
 };
 
 template <typename T>
-LinkSequence<T>::LinkSequence() : lenght_(0) {}
+LinkSequence<T>::LinkSequence() : Sequence<T>(0) {}
 
 template <typename T>
-LinkSequence<T>::LinkSequence(size_t lenght) : lenght_(lenght) {}
+LinkSequence<T>::LinkSequence(size_t lenght) : Sequence<T>(lenght) {}
 
 template <typename T>
 class LinkedList : public LinkSequence<T> {
 private:
     struct Node_ {
-        T* data;
+        T data;
         Node_* next;
         Node_* prev;
     };
@@ -245,6 +246,7 @@ private:
     Node_* tail_;
 public:
     LinkedList();
+    LinkedList(size_t lenght);
     LinkedList(const LinkedList& other);
     LinkedList(const T* items, size_t count);
     T& Get(size_t index) override;
@@ -255,10 +257,10 @@ public:
     const T& GetFirst() const override;
     size_t GetLenght() const override;
     Sequence<T>* GetSubsequence(size_t start_index, size_t end_index) override;
-    LinkedList<T>* GetSubLsit(size_t start_index, size_t end_index);
-    void Append(const T& item);
-    void Prepend(const T& item);
-    LinkedList<T>* Concat(const LinkedList<T>& list1, const LinkedList<T>& list2);
+    LinkedList<T>* GetSubList(size_t start_index, size_t end_index);
+    Sequence<T>* Append(const T& item)override ;
+    Sequence<T>* Prepend(const T& item) override;
+    LinkedList<T>* Concat(const Sequence<T>& list1, const Sequence<T>& list2) override;
     void InsertAt(const T& item, size_t index);
 };
 
@@ -266,8 +268,11 @@ template <typename T>
 LinkedList<T>::LinkedList() : LinkSequence<T>(), head_(nullptr), tail_(nullptr) {}
 
 template <typename T>
-LinkedList<T>::LinkedList(const LinkedList& other) : LinkSequence<T>(other.lenght_), head_(nullptr), tail_(nullptr) {
-    if (lenght_ == 0) {
+LinkedList<T>::LinkedList(size_t lenght) : LinkSequence<T>(lenght), head_(nullptr), tail_(nullptr){}
+ 
+template <typename T>
+LinkedList<T>::LinkedList(const LinkedList& other) : LinkSequence<T>(other.Sequence<T>::lenght_), head_(nullptr), tail_(nullptr) {
+    if (Sequence<T>::lenght_ == 0) {
         return;
     }
     head_ = new Node_{other.head_->data, nullptr, nullptr};
@@ -282,7 +287,7 @@ LinkedList<T>::LinkedList(const LinkedList& other) : LinkSequence<T>(other.lengh
 
 template <typename T>
 LinkedList<T>::LinkedList(const T* items, size_t count) : LinkSequence<T>(count), head_(nullptr), tail_(nullptr) {
-    if (lenght_ == 0) {
+    if (Sequence<T>::lenght_ == 0) {
         return;
     }
     head_ = new Node_{items[0], nullptr, nullptr};
@@ -295,12 +300,12 @@ LinkedList<T>::LinkedList(const T* items, size_t count) : LinkSequence<T>(count)
 
 template <typename T>
 T& LinkedList<T>::Get(size_t index) {
-    if (index >= lenght_) {
+    if (index >= Sequence<T>::lenght_) {
         throw std::out_of_range("Index out of range");
     }
     size_t count = 0;
     Node_* current_node = head_;
-    while (current_node != nullptr) {
+    while (true) {
         if (index == count) {
             return current_node->data;
         }
@@ -311,12 +316,12 @@ T& LinkedList<T>::Get(size_t index) {
 
 template <typename T>
 const T& LinkedList<T>::Get(size_t index) const {
-    if (index >= lenght_) {
+    if (index >= Sequence<T>::lenght_) {
         throw std::out_of_range("Index out of range");
     }
     size_t count = 0;
     Node_* current_node = head_;
-    while (current_node != nullptr) {
+    while (true) {
         if (index == count) {
             return current_node->data;
         }
@@ -328,7 +333,7 @@ const T& LinkedList<T>::Get(size_t index) const {
 
 template <typename T>
 T& LinkedList<T>::GetLast() {
-    if (lenght_ == 0) {
+    if (Sequence<T>::lenght_ == 0) {
         throw std::out_of_range("List is empty");
     }
     return tail_->data;
@@ -336,7 +341,7 @@ T& LinkedList<T>::GetLast() {
 
 template <typename T>
 const T& LinkedList<T>::GetLast() const {
-    if (lenght_ == 0) {
+    if (Sequence<T>::lenght_ == 0) {
         throw std::out_of_range("List is empty");
     }
     return tail_->data;
@@ -344,7 +349,7 @@ const T& LinkedList<T>::GetLast() const {
 
 template <typename T>
 T& LinkedList<T>::GetFirst() {
-    if (lenght_ == 0) {
+    if (Sequence<T>::lenght_ == 0) {
         throw std::out_of_range("List is empty");
     }
     return head_->data;
@@ -352,7 +357,7 @@ T& LinkedList<T>::GetFirst() {
 
 template <typename T>
 const T& LinkedList<T>::GetFirst() const {
-    if (lenght_ == 0) {
+    if (Sequence<T>::lenght_ == 0) {
         throw std::out_of_range("List is empty");
     }
     return head_->data;
@@ -360,15 +365,15 @@ const T& LinkedList<T>::GetFirst() const {
 
 template <typename T>
 size_t LinkedList<T>::GetLenght() const {
-    return lenght_;
+    return Sequence<T>::lenght_;
 }
 
 template <typename T>
-Sequence<T>*  LinhedList<T>::GetSubsequence(size_t start_index, size_t end_index){
-    if (start_index >= lenght_ || end_index > lenght_ || start_index > end_index) {
+Sequence<T>* LinkedList<T>::GetSubsequence(size_t start_index, size_t end_index) {
+    if (start_index >= Sequence<T>::lenght_ || end_index > Sequence<T>::lenght_ || start_index > end_index) {
         throw std::out_of_range("Invalid start or end index");
     }
-    LikedList<T>* subsequence = new LinkedList<T>(end_index - start_index);
+    LinkedList<T>* subsequence = new LinkedList<T>();
     Node_* current_node = head_;
     for(size_t i = 0; i < start_index; ++i){
         current_node = current_node->next;
@@ -381,7 +386,7 @@ Sequence<T>*  LinhedList<T>::GetSubsequence(size_t start_index, size_t end_index
 }
 
 template <typename T>
-void LinkedList<T>::Append(const T& item){
+Sequence<T>* LinkedList<T>::Append(const T& item){
     Node_* new_node = new Node_{item, nullptr, tail_};
     if (tail_ != nullptr) {
         tail_->next = new_node;
@@ -389,11 +394,12 @@ void LinkedList<T>::Append(const T& item){
         head_ = new_node;
     }
     tail_ = new_node;
-    ++lenght_;
+    ++Sequence<T>::lenght_;
+    return this;
 }
 
 template <typename T>
-void LikedList<T>::Prepend(const T& item){
+Sequence<T>* LinkedList<T>::Prepend(const T& item){
     Node_* new_node = new Node_{item, head_, nullptr};
     if(tail_ != nullptr){
         head_->prev = new_node;
@@ -401,15 +407,16 @@ void LikedList<T>::Prepend(const T& item){
         tail_ = new_node;
     }
     head_ = new_node;
-    ++lenght_;
+    ++Sequence<T>::lenght_;
+    return this;
 }
 
 template <typename T>
 LinkedList<T>* LinkedList<T>::GetSubList(size_t start_index, size_t end_index){
-    if (start_index >= lenght_ || end_index > lenght_ || start_index > end_index) {
+    if (start_index >= Sequence<T>::lenght_ || end_index > Sequence<T>::lenght_ || start_index > end_index) {
         throw std::out_of_range("Invalid start or end index");
     }
-    LikedList<T>* sublsit = new LinkedList<T>(end_index - start_index);
+    LinkedList<T>* sublist = new LinkedList<T>(end_index - start_index);
     Node_* current_node = head_;
     for(size_t i = 0; i < start_index; ++i){
         current_node = current_node->next;
@@ -422,60 +429,65 @@ LinkedList<T>* LinkedList<T>::GetSubList(size_t start_index, size_t end_index){
 }
 
 template <typename T>
-LinkedList<T>* LinkedList<T>::Concat(const LinkedList& list1, const LinkedList& list2){
-    size_t result_lenght = list1.lenght + list2.lenght;
+LinkedList<T>* LinkedList<T>::Concat(const Sequence<T>& seq1, const Sequence<T>& seq2){
+    const LinkedList<T>& list1 = dynamic_cast<const LinkedList<T>&>(seq1);
+    const LinkedList<T>& list2 = dynamic_cast<const LinkedList<T>&>(seq2);
+    LinkedList<T> copy_list1 = list1;
+    LinkedList<T> copy_list2 = list2;
+    size_t result_lenght = list1.lenght_ + list2.lenght_;
     LinkedList<T>* result_list = new LinkedList;
-    if(list1->head_ == nullptr && list2->head_ == nullptr){
+    result_list->lenght_ = result_lenght;
+    if(list1.head_ == nullptr && list2.head_ == nullptr){
         return result_list;
     }
-    if(list2->head_ == nullptr){
-        result_list->head_ = list1->head_;
-        result_list->tail_ = list1->tail_;
-        list1->head_ = nullptr;
-        list1->tail_ = nullptr;
-        list1.lenght = 0;
+    if(list2.head_ == nullptr){
+        result_list->head_ = copy_list1.head_;
+        result_list->tail_ = copy_list1.tail_;
+        copy_list1.head_ = nullptr;
+        copy_list1.tail_ = nullptr;
+        copy_list1.lenght_ = 0;
         return result_list;
     }
-    if(list1->head_ == nullptr){
-        result_list->head_ = list2->head_;
-        result_list->tail_ = list2->tail_;
-        list2->head_ = nullptr;
-        list2->tail_ = nullptr;
-        list2.lenght = 0;
+    if(list1.head_ == nullptr){
+        result_list->head_ = copy_list2.head_;
+        result_list->tail_ = copy_list2.tail_;
+        copy_list2.head_ = nullptr;
+        copy_list2.tail_ = nullptr;
+        copy_list2.lenght_ = 0;
         return result_list;
     }
-    result_list->head_ = list1->head_;
-    result_list->tail_ = list1-tail_;
-    result_list->tail_->next = list2->head_;
-    list2->head_->prev = list1->tail_;
-    result_list->tail_ = list2->tail_;
-    list1.lenght = 0;
-    list2.lenght = 0;
-    list1.head_ = nullptr;
-    list2.head_ = nullptr;
-    list1.tail_ = nullptr;
-    list2.tail_ = nullptr;
+    result_list->head_ = copy_list1.head_;
+    result_list->tail_ = copy_list1.tail_;
+    result_list->tail_->next = copy_list2.head_;
+    list2.head_->prev = copy_list1.tail_;
+    result_list->tail_ = copy_list2.tail_;
+    copy_list1.lenght_ = 0;
+    copy_list2.lenght_ = 0;
+    copy_list1.head_ = nullptr;
+    copy_list2.head_ = nullptr;
+    copy_list1.tail_ = nullptr;
+    copy_list2.tail_ = nullptr;
     return result_list;
 }
 
 
 template <typename T>
-void LinkedList<T>* LinkedList<T>:: InsertAt(const T* item, size_t index){
-    if(index > lenght_){
+void LinkedList<T>::InsertAt(const T& item, size_t index){
+    if(index > Sequence<T>::lenght_){
         throw std::out_of_range("Index Out Of Range");
     }
     if(index == 0){
         Prepend(item);
         return;
     }
-    if(index == lenght_){
+    if(index == Sequence<T>::lenght_){
         Append(item);
         return;
     }
     Node_* current_node = head_;
-    Node_* new_node = new Node{item, nullptr, nullptr};
+    Node_* new_node = new Node_{item, nullptr, nullptr};
     for(size_t i = 0; i < index; ++i){
-        current_node = corrent_node->next;
+        current_node = current_node->next;
     }
     new_node->next = current_node;
     new_node->prev = current_node->prev;
