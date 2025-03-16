@@ -15,6 +15,10 @@ void testDynamicArrayGetSubsequence();
 
 void testDynamicArrayReSize();
 
+void testDynamicArrayWhere();
+
+void testDynamicArrayMap();
+
 void testLinkedListDefaultConstructor();
 
 void testLinkedListConstructorWithSize();
@@ -26,6 +30,10 @@ void testLinkedListPrepend();
 void testLinkedListGetSubsequence();
 
 void testLinkedListInsertAt();
+
+void testLinkedListWhere();
+
+void testLinkedListMap();
 
 #endif // TEST_H
 
