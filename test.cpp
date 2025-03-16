@@ -73,9 +73,7 @@ void testDynamicArrayReSize() {
     assert(arr.GetLenght() == 3);
 }
 
-bool predicate(int& value) {
-    return (value > 25);
-}
+
 
 void testDynamicArrayWhere() {
     DynamicArray<int> arr;
@@ -83,7 +81,10 @@ void testDynamicArrayWhere() {
     arr.Append(20);
     arr.Append(30);
     arr.Append(40);
-    DynamicArray<int>* select_arr = static_cast<DynamicArray<int>*>(DynamicArray<int>::Where(arr, predicate));
+    
+    DynamicArray<int>* select_arr = dynamic_cast<DynamicArray<int>*>(arr.Where([](int value){
+        return value > 25;
+    }));
     assert(select_arr->GetLenght() == 2);
     assert(select_arr->Get(0) == 30);
     assert(select_arr->Get(1) == 40);
@@ -99,7 +100,9 @@ void testDynamicArrayMap() {
     arr.Append(10);
     arr.Append(20);
     arr.Append(30);
-    DynamicArray<int>* mapped = static_cast<DynamicArray<int>*>(DynamicArray<int>::Map(arr, unary));
+    DynamicArray<int>* mapped = dynamic_cast<DynamicArray<int>*>(arr.Map([](int& value){
+        value += 1;
+    }));
     assert(mapped->GetLenght() == 3);
     assert(mapped->Get(0) == 11);
     assert(mapped->Get(1) == 21);
@@ -178,11 +181,13 @@ void testLinkedListInsertAt() {
 
 void testLinkedListWhere() {
     LinkedList<int> list;
-    list.Append(10);
+    list.Append(11);
     list.Append(20);
     list.Append(30);
     list.Append(40);
-    LinkedList<int>* select_list = static_cast<LinkedList<int>*>(LinkedList<int>::Where(list, predicate));
+    LinkedList<int>* select_list = static_cast<LinkedList<int>*>(list.Where([](int value){
+        return value % 2 == 0;
+    }));
     assert(select_list->GetLenght() == 2);
     assert(select_list->Get(0) == 30);
     assert(select_list->Get(1) == 40);
@@ -195,12 +200,14 @@ void testLinkedListMap() {
     list.Append(20);
     list.Append(30);
     list.Append(40);
-    LinkedList<int>* mapped = static_cast<LinkedList<int>*>(LinkedList<int>::Map(list, unary));
+    LinkedList<int>* mapped = static_cast<LinkedList<int>*>(list.Map([](int& value){
+        value *= 2;
+    }));
     assert(mapped->GetLenght() == 4);
-    assert(mapped->Get(0) == 11);
-    assert(mapped->Get(1) == 21);
-    assert(mapped->Get(2) == 31);
-    assert(mapped->Get(3) == 41);
+    assert(mapped->Get(0) == 20);
+    assert(mapped->Get(1) == 40);
+    assert(mapped->Get(2) == 60);
+    assert(mapped->Get(3) == 80);
     delete mapped;
 }
 
